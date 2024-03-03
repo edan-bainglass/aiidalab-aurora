@@ -1,0 +1,21 @@
+{
+  "uri": "https://example.com/meta/0.1/ChargeTimeSeries",
+  "description": "Coin cell charge time series.",
+  "dimensions": {
+    "N": "Number of measurements."
+  },
+  "properties": {
+    "t": {
+      "type": "float64",
+      "unit": "s",
+      "shape": ["N"],
+      "description": "Time"
+    },
+    "Q": {
+      "type": "float64",
+      "unit": "C",
+      "shape": ["N"],
+      "description": "Charge"
+    }
+  }
+}

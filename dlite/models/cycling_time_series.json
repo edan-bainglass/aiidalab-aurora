@@ -1,0 +1,27 @@
+{
+  "uri": "https://example.com/meta/0.1/CyclingTimeSeries",
+  "description": "Coin cell cycling data.",
+  "dimensions": {
+    "N": "Number of measurements."
+  },
+  "properties": {
+    "t": {
+      "type": "float64",
+      "unit": "s",
+      "shape": ["N"],
+      "description": "Time"
+    },
+    "I": {
+      "type": "float64",
+      "unit": "A",
+      "shape": ["N"],
+      "description": "Current"
+    },
+    "Ewe": {
+      "type": "float64",
+      "unit": "V",
+      "shape": ["N"],
+      "description": "Voltage"
+    }
+  }
+}
