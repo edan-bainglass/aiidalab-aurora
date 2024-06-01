@@ -5,6 +5,8 @@ from datetime import datetime
 import ipywidgets as ipw
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
+import plotly.subplots as sp
 from matplotlib import pyplot as plt
 from matplotlib.artist import Artist
 from matplotlib.collections import Collection
@@ -54,10 +56,10 @@ class PlotPresenter(HasTraits):
         self._set_event_handlers()
         self._fetch_data()
         self.draw()
-        self._set_plot_labels()
-        self._show_legend()
+        # self._set_plot_labels()
+        # self._show_legend()
         self._show_plot()
-        self._store_defaults()
+        # self._store_defaults()
 
     def close_view(self, _=None, message="closed") -> None:
         """docstring"""
@@ -90,8 +92,16 @@ class PlotPresenter(HasTraits):
         """docstring"""
         x, y = (np.array(a) for a in self.extract_data(dataset))
         label, color = self.get_series_properties(eid)
-        line, = self.model.ax.plot(x, y, label=label, color=color)
-        self.store_color(line)
+        # line, = self.model.ax.plot(x, y, label=label, color=color)
+        trace = go.Scatter(
+            x=x,
+            y=y,
+            mode='lines',
+            name=label,
+            line={"color": color},
+        )
+        self.model.fig = go.Figure(data=[trace], layout=self.model.layout)
+        self.store_color(trace)
 
     def draw(self) -> None:
         """docstring"""
@@ -128,9 +138,9 @@ class PlotPresenter(HasTraits):
         color = self.model.get_color(self.view.sub_batch_toggle.value, label)
         return label, color
 
-    def store_color(self, line: Line2D) -> None:
+    def store_color(self, trace: go.Scatter) -> None:
         """docstring"""
-        self.model.set_color(self.view.sub_batch_toggle.value, line)
+        self.model.set_color(self.view.sub_batch_toggle.value, trace)
 
     ###################
     # PRIVATE METHODS #
@@ -143,16 +153,35 @@ class PlotPresenter(HasTraits):
 
         with self.view.plot:
 
-            self.model.fig, self.model.ax = plt.subplots(1, figsize=(10, 5))
-
-            self.model.fig.subplots_adjust(
-                left=0.22,
-                right=0.78,
-                bottom=0.1,
-                top=0.9,
+            axis_dict = dict(
+                mirror=True,
+                ticks="outside",
+                linecolor="black",
+                showline=True,
             )
 
-            self.model.fig.canvas.header_visible = False
+            self.model.layout = go.Layout(
+                plot_bgcolor="white",
+                paper_bgcolor="white",
+                title=self.TITLE,
+                title_x=0.5,
+                title_y=0.85,
+                xaxis={
+                    "title": self.X_LABEL,
+                    **axis_dict
+                },
+                yaxis={
+                    "title": self.Y_LABEL,
+                    **axis_dict
+                },
+            )
+
+            self.model.fig = sp.make_subplots(
+                figure=go.Figure(layout=self.model.layout),
+                specs=[[{
+                    "secondary_y": True
+                }]],
+            )
 
             if self.Y2_LABEL:
                 self._add_y2axis()
@@ -163,7 +192,18 @@ class PlotPresenter(HasTraits):
         """docstring"""
 
         with self.view.plot:
-            self.model.ax2 = self.model.ax.twinx()
+
+            self.model.fig.update_layout(
+                yaxis={
+                    "side": "left",
+                    "showgrid": False
+                },
+                yaxis2={
+                    "title": self.Y2_LABEL,
+                    "side": "right",
+                    "overlaying": "y"
+                },
+            )
 
         self._add_y2axis_controls()
 
@@ -413,7 +453,7 @@ class PlotPresenter(HasTraits):
     def _show_plot(self) -> None:
         """docstring"""
         with self.view.plot:
-            plt.show()
+            self.model.fig.show()
 
     def _reset_controls(self, _=None) -> None:
         """docstring"""

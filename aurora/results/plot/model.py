@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ipywidgets as ipw
+import plotly.graph_objects as go
 from aiida.orm import load_node
 from aiida_aurora.utils.cycling_analysis import cycling_analysis
 from IPython.display import display
@@ -41,7 +42,8 @@ class PlotModel():
         self.experiment_ids = experiment_ids
         self.data: dict[int, dict] = {}
 
-        self.fig: Figure
+        self.fig: go.Figure
+        self.layout: go.Layout
         self.ax: Axes
         self.ax2: Axes
 
@@ -94,11 +96,12 @@ class PlotModel():
                 return True
         return False
 
-    def set_color(self, is_by_subbatch: bool, line: Line2D) -> None:
+    def set_color(self, is_by_subbatch: bool, trace: go.Scatter) -> None:
         """docstring"""
         if is_by_subbatch not in self.colors:
             self.colors[is_by_subbatch] = {}
-        self.colors[is_by_subbatch][line.get_label()] = line.get_color()
+        if trace.line:
+            self.colors[is_by_subbatch][trace.name] = trace.line.color
 
     def get_color(self, is_by_subbatch: bool, label: str) -> str | None:
         """docstring"""
